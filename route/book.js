@@ -9,7 +9,7 @@ const {sequelize} = require("../config/db")
 
 router.get('/save', (req, res) => {
     BookModel.create({
-        name: 'Rick And Morty - The fifth season',
+        name: 'Rick And Morty',
         author: 'unknow',
         price: 20,
         typeId: 1
@@ -21,10 +21,10 @@ router.get('/save', (req, res) => {
 
     let books = [
         {name: 'book1', author: 'a1', price: 20, typeId: 1},
-        {name: 'book2', author: 'a2', price: 30, typeId: 2},
-        {name: 'book3', author: 'a3', price: 40, typeId: 3},
-        {name: 'book4', author: 'a4', price: 50, typeId: 2},
-        {name: 'book5', author: 'a5', price: 60, typeId: 1},
+        {name: 'book2', author: 'a2', price: 50, typeId: 2},
+        {name: 'book3', author: 'a3', price: 30, typeId: 3},
+        {name: 'book4', author: 'a4', price: 60, typeId: 2},
+        {name: 'book5', author: 'a5', price: 40, typeId: 1},
     ]
 
     BookModel.bulkCreate(books)
@@ -34,14 +34,16 @@ router.get('/save', (req, res) => {
 router.get('/findAll', (req, res) => {
     BookModel.findAll(
         {
-            attributes: ['name', 'author'],
+            attributes: ['id', 'name', 'price'],
             where: {
-                id: [10, 11]
+                //id: [10, 11]
                 //name: {[Op.like]: '%And%'}
-            }
+            },
+            order: [['price', 'DESC'],['id', 'ASC']]
         }
     ).then(r => {
         res.json({
+            code: 200,
             msg: 'success',
             data: r
         })
