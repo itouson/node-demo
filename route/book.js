@@ -19,24 +19,15 @@ router.get('/save', (req, res) => {
         res.send("fail")
     })
 
-    async function saveMany(books) {
-        try {
-            await BookModel.bulkCreate(books);
-            console.log("bulk success");
-        } catch (error) {
-            console.log("bulk \n" + error);
-        }
-    }
-
-    var books = [
-        {name: 'book1', author: 'unknow', price: 20, typeId: 1},
-        {name: 'book2', author: 'unknow', price: 20, typeId: 2},
-        {name: 'book3', author: 'unknow', price: 20, typeId: 3},
-        {name: 'book4', author: 'unknow', price: 20, typeId: 4},
-        {name: 'book5', author: 'unknow', price: 20, typeId: 5},
+    let books = [
+        {name: 'book1', author: 'a1', price: 20, typeId: 1},
+        {name: 'book2', author: 'a2', price: 30, typeId: 2},
+        {name: 'book3', author: 'a3', price: 40, typeId: 3},
+        {name: 'book4', author: 'a4', price: 50, typeId: 2},
+        {name: 'book5', author: 'a5', price: 60, typeId: 1},
     ]
-    saveMany(books)
 
+    BookModel.bulkCreate(books)
 
 })
 
@@ -45,8 +36,8 @@ router.get('/findAll', (req, res) => {
         {
             attributes: ['name', 'author'],
             where: {
-                //id : 3,
-                name: {[Op.like]: '%And%'}
+                id: [10, 11]
+                //name: {[Op.like]: '%And%'}
             }
         }
     ).then(r => {
@@ -106,28 +97,25 @@ router.get('/listAll', (req, res) => {
 })
 
 router.post('/addBook', (req, res) => {
-    addBook().then(r => {
-        res.json({
-            data: r
-        })
-    }).catch(err =>{})
+    sequelize.transaction(async t => {
+        await BookModel.create({
+            name: 'testTran1',
+            author: 'author1',
+            typeId: 1
+        }, {transaction: t})
+        //throw new Error()
+        await BookModel.create({
+            name: 'testTran2',
+            author: 'author2',
+            typeId: 2
+        }, {transaction: t})
+    }).then(r => {
+            res.json({msg: 'success'})
+        }
+    ).catch(err => {
+        res.json({msg: 'rollback'})
+    })
+
 })
-
-async function addBook() {
-    try {
-        await sequelize.transaction(async (t) => {
-            const book = await BookModel.create({
-                name: 'testTran',
-                author: 'df',
-                typeId: 2
-            }, { transaction: t });
-            //throw new Error();
-            return book;    //
-        });
-
-    } catch (error) {
-        console.log("rollback\n" + error);
-    }
-}
 
 module.exports = router
